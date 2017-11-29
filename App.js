@@ -33,21 +33,16 @@ class Movie extends React.Component {
     return (
       <View style={styles.movie}>
         <Image style={styles.backdrop}
-               source={{uri: "http://image.tmdb.org/t/p/w500/sy3e2e4JwdAtd2oZGA2uUilZe8j.jpg"}} />
+               source={{uri: "http://image.tmdb.org/t/p/w500" + this.props.movie.backdrop_path}} />
         <View style={styles.posterContainer}>
           <Image style={styles.poster}
-                 source={{uri: "http://image.tmdb.org/t/p/w500/5aGhaIHYuQbqlHWvWYqMCnj40y2.jpg"}} />
+                 source={{uri: "http://image.tmdb.org/t/p/w500" + this.props.movie.poster_path}} />
         </View>
         <View style={styles.titleAndVotes}>
-          <Text style={styles.title}>The Martian</Text>
-          <Text style={styles.votes}>7.6</Text>
+          <Text style={styles.title}>{this.props.movie.title}</Text>
+          <Text style={styles.votes}>{this.props.movie.vote_average}</Text>
         </View>
-        <Text style={styles.overview}>
-          During a manned mission to Mars, Astronaut Mark Watney is presumed dead after a fierce
-          storm and left behind by his crew. But Watney has survived and finds himself stranded
-          and alone on the hostile planet. With only meager supplies, he must draw upon his ingenuity,
-          wit and spirit to subsist and find a way to signal to Earth that he is alive.
-        </Text>
+        <Text style={styles.overview}>{this.props.movie.overview}</Text>
       </View>
     );
   }
@@ -58,28 +53,43 @@ export default class App extends React.Component {
     super();
     this.state = {
       movieNameInput: "",
-      movie: null
-    }
+      }
   }
+
+  movieNameInputChanged(text){
+    this.setState({
+      movieNameInput: text
+    });
+  }
+
   movieNameInputSubmitted() {
     // Make the TMDB API call, receive results. Leave the next two lines alone.
     let url = "http://api.themoviedb.org/3/search/movie?query=" + this.state.movieNameInput + "&api_key=8ad43d355fccbef40dc3527123bb25ff&language=en-US&page=1&include_adult=false";
     fetch(url).then(response => response.json()).then(json => {
-      console.log(json);
+      console.log(json.results[0])
+      this.setState({
+        movie:json.results[0]
+      })
     });
   }
+
   render() {
     return (
       <View style={styles.container}>
         <TextInput style={styles.movieNameInput}
                    placeholder="Enter a movie name!"
-                   placeholderTextColor="#aaa" />
+                   placeholderTextColor="#aaa"
+                   onChangeText={(text) => this.movieNameInputChanged(text)}
+                   onSubmitEditing={() => this.movieNameInputSubmitted()}
+              />
         {/*Conditionally show the Movie component, only if there's a movie in state (so not initially)*/}
-        {this.state.movie && <Movie />}
+        {this.state.movie && <Movie movie ={this.state.movie}/>}
       </View>
     );
   }
 }
+
+
 
 // Styles. OK to leave alone, unless creativity strikes.
 const styles = StyleSheet.create({
